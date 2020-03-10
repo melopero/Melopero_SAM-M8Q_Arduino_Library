@@ -2,16 +2,19 @@
 #ifndef MP_SAM_M8Q_H_INCLUDED
 #define MP_SAM_M8Q_H_INCLUDED
 
-#define DEFAULT_I2C_ADDRESS = 0x42;
+#include "MP_UBX.h"
 
-#define DATA_STREAM_REGISTER = 0xFF;
+#define DEFAULT_I2C_ADDRESS 0x42
+
+#define DATA_STREAM_REGISTER 0xFF
 
 #define AVAILABLE_BYTES_MSB 0xFD
 #define AVAILABLE_BYTES_LSB 0xFE
 
 enum class Status : int8_t {
   NoError = 0,
-  ArgumentError = -3,
+  ArgumentError = -2,
+  ErrorSending = -3,
   ErrorReceiving = -4,
   OperationTimeOut = -5
 };
@@ -29,26 +32,29 @@ class SAM_M8Q {
   public :
     UbxMessage ubxmsg;
     PVTData pvtData;
+    uint8_t  i2cAddress;
 
   public :
     SAM_M8Q(uint8_t i2cAddress = DEFAULT_I2C_ADDRESS);
 
-    int16_t getAvailableBytes();
-    int8_t writeUbxMessage(UbxMessage &msg);
-    int8_t readUbxMessage(UbxMessage &msg);
+    uint16_t getAvailableBytes();
+    Status writeUbxMessage(UbxMessage &msg);
+    Status readUbxMessage(UbxMessage &msg);
 
-    int8_t waitForUbxMessage(UbxMessage &msg, uint timeoutMillis = 1000, uint intervalMillis = 50);
+    Status waitForUbxMessage(UbxMessage &msg, uint32_t timeoutMillis = 1000, uint32_t intervalMillis = 50);
     bool waitForAcknowledge(uint8_t msgClass, uint8_t msgId);
 
-    int8_t setCommunicationToUbxOnly();
-    int8_t setMessageSendRate(uint8_t msgClass, uint8_t msgId, uint8_t sendRate = 0x01);
-    int8_t setMeasurementFrequency(uint16_t measurementPeriodMs = 1000, uint16_t navigation_rate = 1, uint16_t timeref = 0);
+    Status setCommunicationToUbxOnly();
+    Status setMessageSendRate(uint8_t msgClass, uint8_t msgId, uint8_t sendRate = 0x01);
+    Status setMeasurementFrequency(uint16_t measurementPeriodMillis = 1000, uint8_t navigationRate = 1, TimeRef timeref = TimeRef::UTC);
 
-    int8_t updatePVT(bool polling = true, uint16_t timeOutMillis = 1000);
+    Status updatePVT(bool polling = true, uint16_t timeOutMillis = 1000);
+
+    String getStatusDescription(Status status);
 
     private :
-    uint32_t extractU4FromUbxMessage(UbxMessage &msg, uint startIndex);
-    uint16_t extractU2FromUbxMessage(UbxMessage &msg, uint startIndex);
+      uint32_t extractU4FromUbxMessage(UbxMessage &msg, uint16_t startIndex);
+      uint16_t extractU2FromUbxMessage(UbxMessage &msg, uint16_t startIndex);
 
 };
 
