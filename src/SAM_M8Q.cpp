@@ -2,6 +2,8 @@
 #include "SAM_M8Q.h"
 #include "Wire.h"
 
+//TODO : implement cfg-cfg (save config, factory reset hard reset)
+
 SAM_M8Q::SAM_M8Q(uint8_t i2cAddress){
   this->i2cAddress = i2cAddress;
   Wire.begin(); //Prepare I2C communication
