@@ -211,8 +211,8 @@ Status SAM_M8Q::updatePVT(bool polling, uint16_t timeOutMillis){
     this->pvtData.fixStatusFlags = this->ubxmsg.payload[21];
     this->pvtData.additionalFlags = this->ubxmsg.payload[22];
     this->pvtData.numberOfSatellites = this->ubxmsg.payload[23];
-    this->pvtData.longitude = ((float) ((int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 24))) * 0.0000001; //degrees
-    this->pvtData.latitude = ((float) ((int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 28))) * 0.0000001; //degrees
+    this->pvtData.longitude = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 24); //degrees
+    this->pvtData.latitude = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 28); //degrees
     this->pvtData.height = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 32); //mm
     this->pvtData.hMSL = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 36); //mm
     this->pvtData.horizontalAccuracy = this->extractU4FromUbxMessage(this->ubxmsg, 40);
@@ -221,14 +221,14 @@ Status SAM_M8Q::updatePVT(bool polling, uint16_t timeOutMillis){
     this->pvtData.velocityEast = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 52); //mm/s
     this->pvtData.velocityDown = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 56); //mm/s
     this->pvtData.groundSpeed = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 60); //mm/s
-    this->pvtData.headingOfMotion = ((float) ((int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 64))) * 0.00001; //degrees
+    this->pvtData.headingOfMotion = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 64); //degrees
     this->pvtData.speedAccuracy = this->extractU4FromUbxMessage(this->ubxmsg, 68); //mm/s
-    this->pvtData.headingAccuracy = ((float) this->extractU4FromUbxMessage(this->ubxmsg, 72)) * 0.00001; //mm/s
-    this->pvtData.positionDOP = ((float) this->extractU2FromUbxMessage(this->ubxmsg, 76)) * 0.01;
+    this->pvtData.headingAccuracy = this->extractU4FromUbxMessage(this->ubxmsg, 72); //mm/s
+    this->pvtData.positionDOP = this->extractU2FromUbxMessage(this->ubxmsg, 76);
     this->pvtData.reserved = this->ubxmsg.payload[78];
-    this->pvtData.headingOfVehicle = ((float) ((int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 84))) * 0.00001;
-    this->pvtData.magneticDeclination = ((float) ((int16_t) this->extractU2FromUbxMessage(this->ubxmsg, 88))) * 0.01;
-    this->pvtData.declinationAccuracy = ((float) this->extractU2FromUbxMessage(this->ubxmsg, 90)) * 0.01;
+    this->pvtData.headingOfVehicle = (int32_t) this->extractU4FromUbxMessage(this->ubxmsg, 84);
+    this->pvtData.magneticDeclination = (int16_t) this->extractU2FromUbxMessage(this->ubxmsg, 88);
+    this->pvtData.declinationAccuracy = this->extractU2FromUbxMessage(this->ubxmsg, 90);
   }
 
   return status;
@@ -253,8 +253,8 @@ uint32_t SAM_M8Q::extractU4FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
   if (startIndex + 3 >= msg.length)
     return 0;
 
-  uint32_t value = this->extractU2FromUbxMessage(msg, startIndex);
-  value |= (this->extractU2FromUbxMessage(msg, startIndex + 2) << 16);
+  uint32_t value = (uint32_t) this->extractU2FromUbxMessage(msg, startIndex);
+  value |= ((uint32_t) this->extractU2FromUbxMessage(msg, startIndex + 2)) << 16;
   return value;
 }
 
@@ -262,5 +262,7 @@ uint16_t SAM_M8Q::extractU2FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
   if (startIndex + 1 >= msg.length)
     return 0;
 
-  return (uint16_t) (msg.payload[startIndex] | (msg.payload[startIndex + 1] << 8));
+  uint16_t value = (uint16_t) msg.payload[startIndex];
+  value |= ((uint16_t) msg.payload[startIndex + 1]) << 8;
+  return value;
 }
