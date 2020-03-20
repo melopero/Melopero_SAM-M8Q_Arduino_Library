@@ -37,32 +37,50 @@ Status SAM_M8Q::readUbxMessage(UbxMessage &msg){
   if (Wire.endTransmission(false) != 0)
     return Status::ErrorReceiving;
 
-  Wire.requestFrom(this->i2cAddress, bytes);
+  if (bytes > 32)
+    Wire.requestFrom(this->i2cAddress, 32, 0);
+  else
+    Wire.requestFrom(this->i2cAddress, (uint8_t) bytes);
+  //Arduino's i2c buffer has 32 byte limit. We have to read 32 bytes at a time
+  uint8_t bufferSize = 0;
 
-  uint8_t syncChA; // sync char a
-  while (Wire.available()){
-    syncChA = Wire.read(); // sync char a
-    if (syncChA == SYNC_CHAR_1)
-      break;
+  if (Wire.available()){
+
+    uint8_t syncChA = Wire.read(); // sync char a
+    uint8_t syncChB = Wire.read(); // sync char b
+
+    if (!(syncChA == SYNC_CHAR_1 && syncChB == SYNC_CHAR_2))
+      return Status::ErrorReceiving;
+
+    msg.msgClass = Wire.read();
+    msg.msgId = Wire.read();
+    uint8_t lsb_length = Wire.read();
+    uint8_t msb_length = Wire.read();
+    msg.length = msb_length << 8 | lsb_length;
+
+    bufferSize += 6;
+    for (uint16_t i = 0; i < msg.length; i++){
+      msg.payload[i] = Wire.read();
+      bufferSize ++;
+      if (bufferSize >= 32){
+        bytes -= bufferSize;
+        bufferSize = 0;
+
+        if (bytes > 32)
+          Wire.requestFrom(this->i2cAddress, 32, 0);
+        else
+          Wire.requestFrom(this->i2cAddress, (uint8_t) bytes);
+      }
+    }
+
+    msg.checksumA = Wire.read();
+    msg.checksumB = Wire.read();
+
+    return Status::NoError;
   }
-
-  uint8_t syncChB = Wire.read(); // sync char b
-
-  if (!(syncChA == SYNC_CHAR_1 && syncChB == SYNC_CHAR_2))
+  else {
     return Status::ErrorReceiving;
-
-  msg.msgClass = Wire.read();
-  msg.msgId = Wire.read();
-  uint8_t lsb_length = Wire.read();
-  uint8_t msb_length = Wire.read();
-  msg.length = msb_length << 8 | lsb_length;
-  for (int i = 0; i < msg.length; i++)
-    msg.payload[i] = Wire.read();
-
-  msg.checksumA = Wire.read();
-  msg.checksumB = Wire.read();
-
-  return Status::NoError;
+  }
 }
 
 Status SAM_M8Q::writeUbxMessage(UbxMessage &msg){
