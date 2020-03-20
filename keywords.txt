@@ -1,0 +1,32 @@
+# Syntax Coloring Map For Melopero SAM_M8Q
+
+# Datatypes (KEYWORD1)
+SAM_M8Q	KEYWORD1
+
+Status	KEYWORD3
+TimeRef	KEYWORD3
+
+# Methods and Functions (KEYWORD2)
+getAvailableBytes	KEYWORD2
+writeUbxMessage	KEYWORD2
+readUbxMessage	KEYWORD2
+waitForUbxMessage	KEYWORD2
+waitForAcknowledge	KEYWORD2
+setCommunicationToUbxOnly	KEYWORD2
+setMessageSendRate	KEYWORD2
+setMeasurementFrequency	KEYWORD2
+updatePVT	KEYWORD2
+getStatusDescription	KEYWORD2
+
+# Instances (KEYWORD2)
+ubxmsg  KEYWORD2
+pvtData KEYWORD2
+i2cAddress  KEYWORD2
+
+# Constants (LITERAL1)
+DEFAULT_I2C_ADDRESS	LITERAL1
+
+DATA_STREAM_REGISTER	LITERAL1
+
+AVAILABLE_BYTES_MSB	LITERAL1
+AVAILABLE_BYTES_LSB	LITERAL1
