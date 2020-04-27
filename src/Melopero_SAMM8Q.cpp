@@ -1,16 +1,16 @@
 //Author: Leonardo La Rocca
-#include "SAM_M8Q.h"
+#include "Melopero_SAMM8Q.h"
 #include "Wire.h"
 
 //TODO : implement cfg-cfg (save config, factory reset hard reset)
 
-SAM_M8Q::SAM_M8Q(uint8_t i2cAddress){
+Melopero_SAMM8Q::Melopero_SAMM8Q(uint8_t i2cAddress){
   this->i2cAddress = i2cAddress;
   Wire.begin(); //Prepare I2C communication
 }
 
 /* returns the number of bytes available to read*/
-uint16_t SAM_M8Q::getAvailableBytes(){
+uint16_t Melopero_SAMM8Q::getAvailableBytes(){
 
   Wire.beginTransmission(this->i2cAddress);
   Wire.write(AVAILABLE_BYTES_MSB);
@@ -27,7 +27,7 @@ uint16_t SAM_M8Q::getAvailableBytes(){
 }
 
 /* Reads a UBX message and populates the given UbxMessage*/
-Status SAM_M8Q::readUbxMessage(UbxMessage &msg){
+Status Melopero_SAMM8Q::readUbxMessage(UbxMessage &msg){
   uint16_t bytes = this->getAvailableBytes();
 
   //if (bytes > MAX_MESSAGE_LENGTH || bytes <= 0)
@@ -83,7 +83,7 @@ Status SAM_M8Q::readUbxMessage(UbxMessage &msg){
   }
 }
 
-Status SAM_M8Q::writeUbxMessage(UbxMessage &msg){
+Status Melopero_SAMM8Q::writeUbxMessage(UbxMessage &msg){
   computeChecksum(msg);
   Wire.beginTransmission(this->i2cAddress);
   if (Wire.endTransmission(false) != 0)
@@ -111,7 +111,7 @@ Status SAM_M8Q::writeUbxMessage(UbxMessage &msg){
   timeoutSeconds: the maximum amount of time to wait for the message to arrive in milliseconds.
   intervalSeconds: the interval in milliseconds between two readings.
 */
-Status SAM_M8Q::waitForUbxMessage(UbxMessage &msg, uint32_t timeoutMillis, uint32_t intervalMillis){
+Status Melopero_SAMM8Q::waitForUbxMessage(UbxMessage &msg, uint32_t timeoutMillis, uint32_t intervalMillis){
   int startTime = millis();
   uint8_t desiredClass = msg.msgClass;
   uint8_t desiredId = msg.msgId;
@@ -131,7 +131,7 @@ Status SAM_M8Q::waitForUbxMessage(UbxMessage &msg, uint32_t timeoutMillis, uint3
 
 /* An acknowledge message (or a Not Acknowledge message) is sent everytime
 a configuration message is sent.*/
-bool SAM_M8Q::waitForAcknowledge(uint8_t msgClass, uint8_t msgId){
+bool Melopero_SAMM8Q::waitForAcknowledge(uint8_t msgClass, uint8_t msgId){
   this->ubxmsg.msgClass = ACK_CLASS;
   this->ubxmsg.msgId = ACK_ACK;
   Status status = this->waitForUbxMessage(this->ubxmsg, 1000, 50);
@@ -149,7 +149,7 @@ bool SAM_M8Q::waitForAcknowledge(uint8_t msgClass, uint8_t msgId){
 }
 
 /*Sets the communication protocol to UBX (only) both for input and output*/
-Status SAM_M8Q::setCommunicationToUbxOnly(){
+Status Melopero_SAMM8Q::setCommunicationToUbxOnly(){
   this->ubxmsg.msgClass = CFG_CLASS;
   this->ubxmsg.msgId = CFG_PRT;
   this->ubxmsg.length = 20;
@@ -164,7 +164,7 @@ Status SAM_M8Q::setCommunicationToUbxOnly(){
 /* Send rate is relative to the event a message is registered on.
 For example, if the rate of a navigation message is set to 2,
 the message is sent every second navigation solution */
-Status SAM_M8Q::setMessageSendRate(uint8_t msgClass, uint8_t msgId, uint8_t sendRate){
+Status Melopero_SAMM8Q::setMessageSendRate(uint8_t msgClass, uint8_t msgId, uint8_t sendRate){
   this->ubxmsg.msgClass = CFG_CLASS;
   this->ubxmsg.msgId = CFG_MSG;
   this->ubxmsg.length = 8;
@@ -186,7 +186,7 @@ navigationRate :
 timeref :
     The time system to which measurements are aligned:
     UTC | GPS | GLONASS | BeiDou | Galileo */
-Status SAM_M8Q::setMeasurementFrequency(uint16_t measurementPeriodMillis, uint8_t navigationRate, TimeRef timeref){
+Status Melopero_SAMM8Q::setMeasurementFrequency(uint16_t measurementPeriodMillis, uint8_t navigationRate, TimeRef timeref){
   this->ubxmsg.msgClass = CFG_CLASS;
   this->ubxmsg.msgId = CFG_RATE;
   this->ubxmsg.length = 6;
@@ -203,7 +203,7 @@ polling : if true the pvt message is polled, else waits for the next navigation 
 timeOutMillis : the maximum time to wait for the message
 To reduce the time between pvt messages the frequency of the message can be
 increased with setMessageSendRate and setMeasurementFrequency. */
-Status SAM_M8Q::updatePVT(bool polling, uint16_t timeOutMillis){
+Status Melopero_SAMM8Q::updatePVT(bool polling, uint16_t timeOutMillis){
   this->ubxmsg.msgClass = NAV_CLASS;
   this->ubxmsg.msgId = NAV_PVT;
   if (polling){ //send message without payload
@@ -252,7 +252,7 @@ Status SAM_M8Q::updatePVT(bool polling, uint16_t timeOutMillis){
   return status;
 }
 
-String SAM_M8Q::getStatusDescription(Status status){
+String Melopero_SAMM8Q::getStatusDescription(Status status){
   if (status == Status::NoError)
     return "No Errors";
   else if (status == Status::ArgumentError)
@@ -267,7 +267,7 @@ String SAM_M8Q::getStatusDescription(Status status){
     return "Unknown error / Status code";
 }
 
-uint32_t SAM_M8Q::extractU4FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
+uint32_t Melopero_SAMM8Q::extractU4FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
   if (startIndex + 3 >= msg.length)
     return 0;
 
@@ -276,7 +276,7 @@ uint32_t SAM_M8Q::extractU4FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
   return value;
 }
 
-uint16_t SAM_M8Q::extractU2FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
+uint16_t Melopero_SAMM8Q::extractU2FromUbxMessage(UbxMessage &msg, uint16_t startIndex){
   if (startIndex + 1 >= msg.length)
     return 0;
 

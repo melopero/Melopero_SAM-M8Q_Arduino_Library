@@ -1,7 +1,7 @@
-# Syntax Coloring Map For Melopero SAM_M8Q
+# Syntax Coloring Map For Melopero_SAMM8Q
 
 # Datatypes (KEYWORD1)
-SAM_M8Q	KEYWORD1
+Melopero_SAMM8Q	KEYWORD1
 
 Status	KEYWORD3
 TimeRef	KEYWORD3
