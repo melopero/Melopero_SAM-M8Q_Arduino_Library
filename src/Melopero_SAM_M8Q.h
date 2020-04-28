@@ -1,8 +1,8 @@
 //author: Leonardo La Rocca
-#ifndef Melopero_SAMM8Q_H_INCLUDED
-#define Melopero_SAMM8Q_H_INCLUDED
+#ifndef Melopero_SAM_M8Q_H_INCLUDED
+#define Melopero_SAM_M8Q_H_INCLUDED
 
-#include "MP_UBX.h"
+#include "Melopero_UBX.h"
 
 #define DEFAULT_I2C_ADDRESS 0x42
 
@@ -27,7 +27,7 @@ enum class TimeRef : uint8_t {
   Galileo = 4  //(not supported in protocol versions less than 18)
 };
 
-class Melopero_SAMM8Q {
+class Melopero_SAM_M8Q {
 
   public :
     UbxMessage ubxmsg;
@@ -35,7 +35,7 @@ class Melopero_SAMM8Q {
     uint8_t  i2cAddress;
 
   public :
-    Melopero_SAMM8Q(uint8_t i2cAddress = DEFAULT_I2C_ADDRESS);
+    Melopero_SAM_M8Q(uint8_t i2cAddress = DEFAULT_I2C_ADDRESS);
 
     uint16_t getAvailableBytes();
     Status writeUbxMessage(UbxMessage &msg);
@@ -58,4 +58,4 @@ class Melopero_SAMM8Q {
 
 };
 
-#endif // Melopero_SAMM8Q_H_INCLUDED
+#endif // Melopero_SAM_M8Q_H_INCLUDED

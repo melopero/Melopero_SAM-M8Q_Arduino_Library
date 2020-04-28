@@ -1,7 +1,7 @@
-#include <Melopero_SAMM8Q.h>
+#include <Melopero_SAM_M8Q.h>
 #include <Wire.h>
 
-Melopero_SAMM8Q gps;
+Melopero_SAM_M8Q gps;
 int lastUpdate;
 
 void setup() {
