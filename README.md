@@ -10,7 +10,7 @@ A library for interfacing the <b>Melopero SAM-M8Q Multi GNSS breakout board</b> 
 
 <table style="width:100%">
   <tr>
-    <th>Melopero SAM-M8Q Multi GNSS</th>
+    <th>Melopero SAM-M8Q</th>
     <th>Description</th>
   </tr>
   <tr>
@@ -58,12 +58,12 @@ You will need:
 - Arduino IDE, you can download it here: [download Arduino IDE](https://www.arduino.cc/en/main/software)
 - the Melopero SAM-M8Q Multi GNSS breakout: [buy here](https://www.melopero.com/shop)
 
-### Connect the sensor to Arduino <br>(Use only 3.3V power and logic Arduino boards, such as the Arduino MKR, do not connect this board directly to 5V. You'll need a level converter to use itwith an Arduino UNO)
-This sensor communicates over I2C.
+### Connect the sensor to Arduino <br>
+Use <b>only 3.3V power and logic</b> Arduino boards, such as the <b>Arduino MKR</b>.<br> <b>DO NOT connect</b> this board directly to <b>5V</b>. You'll need a level converter to use it with an Arduino UNO.<br>This sensor communicates over I2C.
 <br><b>I2C connections</b>:
 <table style="width:100%">
   <tr>
-    <th>Melopero LSM9DS1</th>
+    <th>Melopero SAM-M8Q</th>
     <th>Arduino</th>
   </tr>
   <tr>
@@ -98,4 +98,4 @@ This library can be installed directly from the Library manager of the Arduino I
 
 ### Attention:
 
-This breakout board is compatible only with 3.3V power and logic. You'll need a level converter to use this breakout board with an Arduino UNO.
+This breakout board is compatible only with 3.3V power and logic board, such as the <b>Arduino MKR</b>.<br> You'll need a level converter to use this breakout board with an Arduino UNO.
