@@ -3,6 +3,7 @@
 #define Melopero_SAM_M8Q_H_INCLUDED
 
 #include "Melopero_UBX.h"
+#include "Wire.h"
 
 #define DEFAULT_I2C_ADDRESS 0x42
 
@@ -33,10 +34,12 @@ class Melopero_SAM_M8Q {
     UbxMessage ubxmsg;
     PVTData pvtData;
     uint8_t  i2cAddress;
+    arduino::TwoWire *i2cBus;
 
   public :
-    Melopero_SAM_M8Q(uint8_t i2cAddress = DEFAULT_I2C_ADDRESS);
+    Melopero_SAM_M8Q();
 
+    void initI2C(uint8_t i2cAddress = DEFAULT_I2C_ADDRESS, uint8_t i2cBus=0);
     uint16_t getAvailableBytes();
     Status writeUbxMessage(UbxMessage &msg);
     Status readUbxMessage(UbxMessage &msg);

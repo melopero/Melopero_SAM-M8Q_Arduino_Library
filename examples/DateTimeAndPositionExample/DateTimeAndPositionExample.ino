@@ -6,6 +6,13 @@ int lastUpdate;
 
 void setup() {
   Serial.begin(9600);
+
+  // init the i2c communication channel
+  // by default it uses the DEFAULT_I2C_ADDRESS and I2C-0
+  // You can specify a different address and/or bus:
+  // gps.initI2C(address, bus);
+  gps.initI2C();
+
   //First set up the gps to use only UBX messages
   //Many functions in the library return a Status
   //You can get a description of the status with:

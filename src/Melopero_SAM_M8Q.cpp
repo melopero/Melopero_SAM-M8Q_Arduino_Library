@@ -1,25 +1,33 @@
 //Author: Leonardo La Rocca
 #include "Melopero_SAM_M8Q.h"
-#include "Wire.h"
 
 //TODO : implement cfg-cfg (save config, factory reset hard reset)
 
-Melopero_SAM_M8Q::Melopero_SAM_M8Q(uint8_t i2cAddress){
+Melopero_SAM_M8Q::Melopero_SAM_M8Q(){
+}
+
+void Melopero_SAM_M8Q::initI2C(uint8_t i2cAddress, uint8_t i2cBus){
   this->i2cAddress = i2cAddress;
-  Wire.begin(); //Prepare I2C communication
+  #if WIRE_INTERFACES_COUNT == 1
+  this->i2cBus = &Wire;
+  #endif 
+  #if WIRE_INTERFACES_COUNT > 1 
+  this->i2cBus = i2cBus == 0 ? &Wire : &Wire1;
+  #endif
+  this->i2cBus->begin(); //Prepare I2C communication
 }
 
 /* returns the number of bytes available to read*/
 uint16_t Melopero_SAM_M8Q::getAvailableBytes(){
 
-  Wire.beginTransmission(this->i2cAddress);
-  Wire.write(AVAILABLE_BYTES_MSB);
-  if (Wire.endTransmission(false) != 0)
+  i2cBus->beginTransmission(this->i2cAddress);
+  i2cBus->write(AVAILABLE_BYTES_MSB);
+  if (i2cBus->endTransmission(false) != 0)
     return 0;
 
-  Wire.requestFrom(this->i2cAddress, 2);
-  uint8_t msb = Wire.read();
-  uint8_t lsb = Wire.read();
+  i2cBus->requestFrom(this->i2cAddress, 2);
+  uint8_t msb = i2cBus->read();
+  uint8_t lsb = i2cBus->read();
   if (msb == 0xFF || lsb == 0xFF)
     return 0;
   msb &= 0x7F; //check if this is correct
@@ -32,49 +40,49 @@ Status Melopero_SAM_M8Q::readUbxMessage(UbxMessage &msg){
 
   //if (bytes > MAX_MESSAGE_LENGTH || bytes <= 0)
   //  return Status::ErrorReceiving;
-  Wire.beginTransmission(this->i2cAddress);
-  Wire.write(DATA_STREAM_REGISTER);
-  if (Wire.endTransmission(false) != 0)
+  i2cBus->beginTransmission(this->i2cAddress);
+  i2cBus->write(DATA_STREAM_REGISTER);
+  if (i2cBus->endTransmission(false) != 0)
     return Status::ErrorReceiving;
 
   if (bytes > 32)
-    Wire.requestFrom(this->i2cAddress, 32, 0);
+    i2cBus->requestFrom(this->i2cAddress, 32, 0);
   else
-    Wire.requestFrom(this->i2cAddress, (uint8_t) bytes);
+    i2cBus->requestFrom(this->i2cAddress, (uint8_t) bytes);
   //Arduino's i2c buffer has 32 byte limit. We have to read 32 bytes at a time
   uint8_t bufferSize = 0;
 
-  if (Wire.available()){
+  if (i2cBus->available()){
 
-    uint8_t syncChA = Wire.read(); // sync char a
-    uint8_t syncChB = Wire.read(); // sync char b
+    uint8_t syncChA = i2cBus->read(); // sync char a
+    uint8_t syncChB = i2cBus->read(); // sync char b
 
     if (!(syncChA == SYNC_CHAR_1 && syncChB == SYNC_CHAR_2))
       return Status::ErrorReceiving;
 
-    msg.msgClass = Wire.read();
-    msg.msgId = Wire.read();
-    uint8_t lsb_length = Wire.read();
-    uint8_t msb_length = Wire.read();
+    msg.msgClass = i2cBus->read();
+    msg.msgId = i2cBus->read();
+    uint8_t lsb_length = i2cBus->read();
+    uint8_t msb_length = i2cBus->read();
     msg.length = msb_length << 8 | lsb_length;
 
     bufferSize += 6;
     for (uint16_t i = 0; i < msg.length; i++){
-      msg.payload[i] = Wire.read();
+      msg.payload[i] = i2cBus->read();
       bufferSize ++;
       if (bufferSize >= 32){
         bytes -= bufferSize;
         bufferSize = 0;
 
         if (bytes > 32)
-          Wire.requestFrom(this->i2cAddress, 32, 0);
+          i2cBus->requestFrom(this->i2cAddress, 32, 0);
         else
-          Wire.requestFrom(this->i2cAddress, (uint8_t) bytes);
+          i2cBus->requestFrom(this->i2cAddress, (uint8_t) bytes);
       }
     }
 
-    msg.checksumA = Wire.read();
-    msg.checksumB = Wire.read();
+    msg.checksumA = i2cBus->read();
+    msg.checksumB = i2cBus->read();
 
     return Status::NoError;
   }
@@ -85,24 +93,24 @@ Status Melopero_SAM_M8Q::readUbxMessage(UbxMessage &msg){
 
 Status Melopero_SAM_M8Q::writeUbxMessage(UbxMessage &msg){
   computeChecksum(msg);
-  Wire.beginTransmission(this->i2cAddress);
-  if (Wire.endTransmission(false) != 0)
+  i2cBus->beginTransmission(this->i2cAddress);
+  if (i2cBus->endTransmission(false) != 0)
     return Status::ErrorSending;
 
-  Wire.beginTransmission(this->i2cAddress);
-  Wire.write(SYNC_CHAR_1);
-  Wire.write(SYNC_CHAR_2);
-  Wire.write(msg.msgClass);
-  Wire.write(msg.msgId);
-  Wire.write((uint8_t) (msg.length & 0xFF)); // length lsb
-  Wire.write((uint8_t) (msg.length >> 8)); // length msb
+  i2cBus->beginTransmission(this->i2cAddress);
+  i2cBus->write(SYNC_CHAR_1);
+  i2cBus->write(SYNC_CHAR_2);
+  i2cBus->write(msg.msgClass);
+  i2cBus->write(msg.msgId);
+  i2cBus->write((uint8_t) (msg.length & 0xFF)); // length lsb
+  i2cBus->write((uint8_t) (msg.length >> 8)); // length msb
   for (int i = 0; i < msg.length; i++)
-    Wire.write(msg.payload[i]);
+    i2cBus->write(msg.payload[i]);
 
-  Wire.write(msg.checksumA);
-  Wire.write(msg.checksumB);
+  i2cBus->write(msg.checksumA);
+  i2cBus->write(msg.checksumB);
 
-  Wire.endTransmission();
+  i2cBus->endTransmission();
 
   return Status::NoError;
 }
