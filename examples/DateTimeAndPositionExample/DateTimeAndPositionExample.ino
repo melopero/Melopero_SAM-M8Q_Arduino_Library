@@ -8,9 +8,13 @@ void setup() {
   Serial.begin(9600);
 
   // init the i2c communication channel
-  // by default it uses the DEFAULT_I2C_ADDRESS and I2C-0
+  // by default it uses the SAM_M8Q_DEFAULT_I2C_ADDRESS and Wire (I2C-0)
   // You can specify a different address and/or bus:
   // gps.initI2C(address, bus);
+  // For example for Wire1 it would be:
+  // Wire1.begin();
+  // gps.initI2C(SAM_M8Q_DEFAULT_I2C_ADDRESS, Wire1);
+  Wire.begin();
   gps.initI2C();
 
   //First set up the gps to use only UBX messages

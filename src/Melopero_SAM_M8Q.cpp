@@ -6,15 +6,9 @@
 Melopero_SAM_M8Q::Melopero_SAM_M8Q(){
 }
 
-void Melopero_SAM_M8Q::initI2C(uint8_t i2cAddress, uint8_t i2cBus){
+void Melopero_SAM_M8Q::initI2C(uint8_t i2cAddress, TwoWire &bus){
   this->i2cAddress = i2cAddress;
-  #if WIRE_INTERFACES_COUNT == 1
-  this->i2cBus = &Wire;
-  #endif 
-  #if WIRE_INTERFACES_COUNT > 1 
-  this->i2cBus = i2cBus == 0 ? &Wire : &Wire1;
-  #endif
-  this->i2cBus->begin(); //Prepare I2C communication
+  this->i2cBus = &bus; 
 }
 
 /* returns the number of bytes available to read*/
