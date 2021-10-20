@@ -202,10 +202,10 @@ Status Melopero_SAM_M8Q::setMeasurementFrequency(uint16_t measurementPeriodMilli
   this->ubxmsg.msgId = CFG_RATE;
   this->ubxmsg.length = 6;
   resetPayload(this->ubxmsg);
-  this->ubxmsg.payload[0] = (measurementPeriodMillis >> 8 );
-  this->ubxmsg.payload[1] = measurementPeriodMillis % (1 << 8);
-  this->ubxmsg.payload[3] = navigationRate;
-  this->ubxmsg.payload[5] = (uint8_t) timeref;
+  this->ubxmsg.payload[0] = (uint8_t) (measurementPeriodMillis & 0xFF );
+  this->ubxmsg.payload[1] = measurementPeriodMillis >> 8;
+  this->ubxmsg.payload[2] = navigationRate;
+  this->ubxmsg.payload[4] = (uint8_t) timeref;
   return this->writeUbxMessage(this->ubxmsg);
 }
 

@@ -56,7 +56,7 @@ class Melopero_SAM_M8Q {
     Status setMessageSendRate(uint8_t msgClass, uint8_t msgId, uint8_t sendRate = 0x01);
     Status setMeasurementFrequency(uint16_t measurementPeriodMillis = 1000, uint8_t navigationRate = 1, TimeRef timeref = TimeRef::UTC);
 
-    Status updatePVT(bool polling = true, uint16_t timeOutMillis = 1000);
+    Status updatePVT(bool polling = false, uint16_t timeOutMillis = 1000);
 
     String getStatusDescription(Status status);
 
