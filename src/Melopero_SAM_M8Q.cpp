@@ -109,6 +109,15 @@ Status Melopero_SAM_M8Q::writeUbxMessage(UbxMessage &msg){
   return Status::NoError;
 }
 
+Status Melopero_SAM_M8Q::pollUbxMessage(UbxMessage &msg){
+  Status status = Status::NoError;
+  msg.length = 0;
+  status = this->writeUbxMessage(msg);
+  if (status != Status::NoError) return status;
+  status = this->waitForUbxMessage(msg);
+  return status;
+}
+
 /* waits for a given message type (class and id).
   timeoutSeconds: the maximum amount of time to wait for the message to arrive in milliseconds.
   intervalSeconds: the interval in milliseconds between two readings.

@@ -41,10 +41,15 @@ class Melopero_SAM_M8Q {
 
     void initI2C(uint8_t i2cAddress = SAM_M8Q_DEFAULT_I2C_ADDRESS, TwoWire &bus=Wire);
     uint16_t getAvailableBytes();
+    /** Writes the message in input to the gps device */
     Status writeUbxMessage(UbxMessage &msg);
+    /** Tries to read any incoming message from the gps device */
     Status readUbxMessage(UbxMessage &msg);
+    /** Polls and reads a ubx message with class and id of the input message */
+    Status pollUbxMessage(UbxMessage &msg);
 
-    Status waitForUbxMessage(UbxMessage &msg, uint32_t timeoutMillis = 1000, uint32_t intervalMillis = 50);
+    /** waits and reads a ubx message with class and id of the input message */
+    Status waitForUbxMessage(UbxMessage &msg, uint32_t timeoutMillis = 2000, uint32_t intervalMillis = 50);
     bool waitForAcknowledge(uint8_t msgClass, uint8_t msgId);
 
     Status setCommunicationToUbxOnly();
