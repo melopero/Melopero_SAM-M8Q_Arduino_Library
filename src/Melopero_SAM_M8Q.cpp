@@ -1,7 +1,8 @@
 //Author: Leonardo La Rocca
 #include "Melopero_SAM_M8Q.h"
 
-//TODO : implement cfg-cfg (save config, factory reset hard reset)
+//TODO:  implement cfg-cfg (save config, factory reset hard reset)
+//TODO
 
 Melopero_SAM_M8Q::Melopero_SAM_M8Q(){
 }
